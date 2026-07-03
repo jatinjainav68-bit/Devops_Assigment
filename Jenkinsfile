@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     stages {
+
         stage('Checkout') {
             steps {
                 echo 'Checking out the project...'
@@ -20,10 +21,31 @@ pipeline {
             }
         }
 
-        stage('Deploy') {https://github.com/jatinjainav68-bit/Devops_Assigment/actions
+        stage('Deploy') {
             steps {
-                echo 'Website deployment stage completed.'
+                sh '''
+                sudo cp -r /var/lib/jenkins/workspace/devops-assigment/* /usr/share/nginx/html/
+                sudo systemctl restart nginx
+                '''
             }
+        }
+
+        stage('S3 Backup') {
+            steps {
+                sh '''
+                aws s3 cp /var/lib/jenkins/workspace/devops-assigment/index.html s3://test-bucket235678/
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline executed successfully 🚀'
+        }
+
+        failure {
+            echo 'Pipeline failed ❌'
         }
     }
 }
